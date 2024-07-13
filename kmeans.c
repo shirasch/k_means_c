@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 struct cord {
     double value;
@@ -39,22 +40,18 @@ void print_vectors(struct vector *head_vec) {
     }
 }
 
-int main(int argc, char **argv) {
+struct vector* getinput(char *input_file, int *num_vectors) {
     struct vector *head_vec = NULL, *curr_vec = NULL;
     struct cord *head_cord = NULL, *curr_cord = NULL;
     double n;
     char c;
+    *num_vectors = 0;
 
-    // add validation tests
-
-    int K = atoi(argv[1]);
-    int iter = atoi(argv[2]);
-    char *input_file = argv[3];
     FILE *fp = fopen(input_file, "r");
 
     if (fp == NULL) {
         perror("Error opening file");
-        return 1;
+        return NULL;
     }
 
     while (fscanf(fp, "%lf%c", &n, &c) == 2) {
@@ -83,17 +80,41 @@ int main(int argc, char **argv) {
                 curr_vec->next = NULL;
                 head_cord = NULL;
                 curr_cord = NULL;
+                (*num_vectors)++;
             }
         }
     }
 
     fclose(fp);
+    return head_vec;
+}
+
+int main(int argc, char **argv) {
+    if (argc != 4) {
+        fprintf(stderr, "Usage: %s <K> <iter> <input_file>\n", argv[0]);
+        return 1;
+    }
+
+    int K = atoi(argv[1]);
+    int iter = atoi(argv[2]);
+    char *input_file = argv[3];
+    int num_vectors;
+
+    struct vector *head_vec = getinput(input_file, &num_vectors);
+    if (head_vec == NULL) {
+        return 1;
+    }
+
 
     // Create array of K vectors
     struct vector **vector_array = malloc(K * sizeof(struct vector *));
     initialize_vector_array(head_vec, vector_array, K);
 
+    struct vector **vector_array = malloc(num_vectors * sizeof(struct vector *));
+    
     // print_vectors(head_vec);
+    
+
 
     // Free memory
     struct vector *temp_vec;
@@ -108,6 +129,8 @@ int main(int argc, char **argv) {
         }
         free(temp_vec);
     }
+
+    free(vector_array);
 
     return 0;
 }
