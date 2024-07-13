@@ -12,7 +12,7 @@ struct vector {
     struct cord *cords;
 };
 
-void initialize_vector_array(struct vector *head_vec, struct vector **vector_array, int K) {
+void initialize_m_array(struct vector *head_vec, struct vector **vector_array, int K) {
     struct vector *current = head_vec;
     int i = 0;
 
@@ -90,8 +90,8 @@ struct vector* getinput(char *input_file, int *num_vectors) {
 }
 
 int main(int argc, char **argv) {
-    if (argc != 4) {
-        fprintf(stderr, "Usage: %s <K> <iter> <input_file>\n", argv[0]);
+    if (argc < 3) {
+        fprintf(stderr, "An Error Has Occurred", argv[0]);
         return 1;
     }
 
@@ -107,8 +107,8 @@ int main(int argc, char **argv) {
 
 
     // Create array of K vectors
-    struct vector **vector_array = malloc(K * sizeof(struct vector *));
-    initialize_vector_array(head_vec, vector_array, K);
+    struct vector **m_array = malloc(K * sizeof(struct vector *));
+    initialize_m_array(head_vec, m_array, K);
 
     struct vector **vector_array = malloc(num_vectors * sizeof(struct vector *));
     
