@@ -208,6 +208,35 @@ struct vector* devide_sum(struct vector *sum_vector, int divisor) {
     return result;
 }
 
+int check_convergence(int n, struct vector **new_means, struct vector **old_means) {
+    double e = 0.001;
+    double total_movement = 0.0;
+
+    for (int i = 0; i < n; i++) {
+        total_movement += calculate_distance(new_means[i], old_means[i]);
+        
+    }
+    printf("convergence result:%f\n", total_movement);
+    int result = total_movement<e ? 1 : 0;
+
+    return result;
+}
+
+void free_vector_mem(struct vector *vec){
+    struct vector *temp_vec;
+    while (vec != NULL) {
+        temp_vec = vec;
+        vec = vec->next;
+        struct cord *temp_cord;
+        while (temp_vec->cords != NULL) {
+            temp_cord = temp_vec->cords;
+            temp_vec->cords = temp_vec->cords->next;
+            free(temp_cord);
+        }
+        free(temp_vec);
+    }
+
+}
 
 
 int main(int argc, char **argv) {
@@ -217,16 +246,16 @@ int main(int argc, char **argv) {
     int num_vectors;
     double e;
     int i;
-    int converged;
+    int converged = 0;
     e = 0.001;
     int h;
     int m_index;
 
-    // if (argc < 3) {
-    //     fprintf(stderr, "An Error Has Occurred", argv[0]);
-    //     return 1;
-    // }
-    // K = atoi(argv[1]);
+    if (argc < 3) {
+        fprintf(stderr, "An Error Has Occurred", argv[0]);
+        return 1;
+    }
+    K = atoi(argv[1]);
 
     m_index = 0;
     K = 3;
@@ -264,6 +293,7 @@ int main(int argc, char **argv) {
 
     // initilize array of K first vectors as m_array
     struct vector **m_array = malloc(K * sizeof(struct vector *));
+    
     for (int i = 0; i < K; i++) {
         if (i >= num_vectors) {
             fprintf(stderr, "Error: K is greater than the number of vectors.\n");
@@ -272,21 +302,27 @@ int main(int argc, char **argv) {
         m_array[i] = duplicate_vector(vector_array[i]);
     }
 
-    int closest_indices[num_vectors];
-    int counters_array[K];
+
+    int *closest_indices = malloc(num_vectors * sizeof(int));
+    int *counters_array = malloc(K * sizeof(int));
+
     struct vector **sums_array = malloc(K * sizeof(struct vector *));
     i = 0;
 
-    while(i < iter){
+    while((i < iter) && (!converged)){
         // Find the closest vectors and store their indices
         find_closest_vectors(vector_array, num_vectors, m_array, K, closest_indices);
+
+        // Initialize counters array to zeros
         for (int j = 0; j < K; j++){
             counters_array[j] = 0;
         }
+
+        // Initialize each pointer to NULL
         for (int j = 0; j < K; j++) {
-            sums_array[j] = NULL;  // Initialize each pointer to NULL
+            sums_array[j] = NULL;
         }
-        // update m_array
+        // Calculate the new means
         for(h = 0; h < num_vectors; h++){
             m_index = closest_indices[h];
             if (sums_array[m_index] == NULL){
@@ -298,45 +334,39 @@ int main(int argc, char **argv) {
             counters_array[m_index]++;
         }
 
+        struct vector **new_m_array = malloc(K * sizeof(struct vector *));
+
         for(h = 0; h < K; h++){
-            m_array[h] = devide_sum(sums_array[h], counters_array[h]);
+            new_m_array[h] = devide_sum(sums_array[h], counters_array[h]);
         }
+
+
+        // Check convergence
+        converged = check_convergence(K ,new_m_array, m_array);
+        
+
+        // Update m_array and free redundant memory
+        for(int j = 0; j < K; j++){
+            free_vector_mem(m_array[j]);
+            m_array[j] = new_m_array[j];
+        }
+        printf("Iteration number: %d\n", i);
+
         i++;
     }
 
     print_m_array(m_array, K);
 
     // Free memory
-    struct vector *temp_vec;
-    while (head_vec != NULL) {
-        temp_vec = head_vec;
-        head_vec = head_vec->next;
-        struct cord *temp_cord;
-        while (temp_vec->cords != NULL) {
-            temp_cord = temp_vec->cords;
-            temp_vec->cords = temp_vec->cords->next;
-            free(temp_cord);
-        }
-        free(temp_vec);
-    }
+    free_vector_mem(head_vec);
 
     for (int i = 0; i < K; i++) {
-        struct vector *dup_vec = m_array[i];
-        while (dup_vec != NULL) {
-            temp_vec = dup_vec;
-            dup_vec = dup_vec->next;
-            struct cord *temp_cord;
-            while (temp_vec->cords != NULL) {
-                temp_cord = temp_vec->cords;
-                temp_vec->cords = temp_vec->cords->next;
-                free(temp_cord);
-            }
-            free(temp_vec);
-        }
+        free_vector_mem(m_array[i]);
     }
-
-    free(vector_array);
     free(m_array);
+    free(closest_indices);
+    free(counters_array);
+    free(vector_array);
 
     return 0;
 }
