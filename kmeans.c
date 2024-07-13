@@ -16,11 +16,8 @@ void print_vectors(struct vector *head_vec);
 void print_m_array(struct vector **m_array, int K);
 
 void print_m_array(struct vector **m_array, int K) {
-    printf("Final m_array:\n");
     for (int i = 0; i < K; i++) {
-        printf("Vector %d:\n", i + 1);
         print_vectors(m_array[i]);
-        printf("\n");
     }
 }
 
@@ -53,10 +50,11 @@ void print_vectors(struct vector *head_vec) {
     while (current_vector != NULL) {
         struct cord *current_cord = current_vector->cords;
 
-        while (current_cord != NULL) {
-            printf("%.5lf ", current_cord->value);
+        while (current_cord->next != NULL) {
+            printf("%.4lf,", current_cord->value);
             current_cord = current_cord->next;
         }
+        printf("%.4lf", current_cord->value);
         printf("\n");
 
         current_vector = current_vector->next;
@@ -167,8 +165,7 @@ void find_closest_vectors(struct vector **vector_array, int num_vectors, struct 
     }
 }
 
-struct vector* sum_vectors(struct vector *vec1, struct vector *vec2) {
-    struct vector *result = malloc(sizeof(struct vector));
+void sum_vectors(struct vector *vec1, struct vector *vec2) {
     struct cord *head_result_cord = NULL;
     struct cord *curr_result_cord = NULL;
 
@@ -176,31 +173,10 @@ struct vector* sum_vectors(struct vector *vec1, struct vector *vec2) {
     struct cord *cord2 = vec2->cords;
 
     while (cord1 != NULL && cord2 != NULL) {
-        struct cord *new_cord = malloc(sizeof(struct cord));
-        new_cord->value = cord1->value + cord2->value;
-        new_cord->next = NULL;
-
-        if (head_result_cord == NULL) {
-            head_result_cord = new_cord;
-            curr_result_cord = head_result_cord;
-        } else {
-            curr_result_cord->next = new_cord;
-            curr_result_cord = new_cord;
-        }
-
+        cord1->value = cord1->value + cord2->value;
         cord1 = cord1->next;
         cord2 = cord2->next;
     }
-
-    if (cord1 != NULL || cord2 != NULL) {
-        fprintf(stderr, "Error: Vectors have different lengths.\n");
-        exit(1);
-    }
-
-    result->cords = head_result_cord;
-    result->next = NULL;
-
-    return result;
 }
 
 struct vector* devide_sum(struct vector *sum_vector, int divisor) {
@@ -237,7 +213,7 @@ struct vector* devide_sum(struct vector *sum_vector, int divisor) {
 int main(int argc, char **argv) {
     int K;
     int iter;
-    char *input_file;
+    //char *input_file;
     int num_vectors;
     double e;
     int i;
@@ -246,13 +222,17 @@ int main(int argc, char **argv) {
     int h;
     int m_index;
 
-    if (argc < 3) {
-        fprintf(stderr, "An Error Has Occurred", argv[0]);
-        return 1;
-    }
+    // if (argc < 3) {
+    //     fprintf(stderr, "An Error Has Occurred", argv[0]);
+    //     return 1;
+    // }
+    // K = atoi(argv[1]);
 
-    // get the 
-    K = atoi(argv[1]);
+    m_index = 0;
+    K = 3;
+    iter = 100;
+    char input_file[12] = "input_1.txt";
+
     
     if (argc == 4){
         iter = atoi(argv[2]);
@@ -297,9 +277,12 @@ int main(int argc, char **argv) {
     struct vector **sums_array = malloc(K * sizeof(struct vector *));
     i = 0;
 
-    while(!converged && i < iter){
+    while(i < iter){
         // Find the closest vectors and store their indices
         find_closest_vectors(vector_array, num_vectors, m_array, K, closest_indices);
+        for (int j = 0; j < K; j++){
+            counters_array[j] = 0;
+        }
         for (int j = 0; j < K; j++) {
             sums_array[j] = NULL;  // Initialize each pointer to NULL
         }
@@ -307,10 +290,10 @@ int main(int argc, char **argv) {
         for(h = 0; h < num_vectors; h++){
             m_index = closest_indices[h];
             if (sums_array[m_index] == NULL){
-                sums_array[m_index] = vector_array[h];
+                sums_array[m_index] = duplicate_vector(vector_array[h]);
             }
             else{
-                sums_array[m_index] = sum_vectors(sums_array[m_index], vector_array[h]);
+                sum_vectors(sums_array[m_index], vector_array[h]);
             }
             counters_array[m_index]++;
         }
@@ -320,6 +303,7 @@ int main(int argc, char **argv) {
         }
         i++;
     }
+
     print_m_array(m_array, K);
 
     // Free memory
