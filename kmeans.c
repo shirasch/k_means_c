@@ -61,22 +61,6 @@ void print_vectors(struct vector *head_vec) {
     }
 }
 
-void print_vector_array(struct vector **vector_array, int num_vectors) {
-    for (int i = 0; i < num_vectors; i++) {
-        struct vector *current_vector = vector_array[i];
-        printf("Duplicated Vector %d: ", i + 1);
-        while (current_vector != NULL) {
-            struct cord *current_cord = current_vector->cords;
-            while (current_cord != NULL) {
-                printf("%.5lf ", current_cord->value);
-                current_cord = current_cord->next;
-            }
-            current_vector = current_vector->next;
-        }
-        printf("\n");
-    }
-}
-
 struct vector* getinput(char *input_file, int *num_vectors) {
     struct vector *head_vec = NULL, *curr_vec = NULL;
     struct cord *head_cord = NULL, *curr_cord = NULL;
