@@ -234,6 +234,7 @@ int main(int argc, char **argv) {
     int *closest_indices;
     int *counters_array;
     struct vector **new_m_array;
+    struct vector **sums_array;
 
     if (argc < 3) {
         printf("An Error Has Occurred\n");
@@ -255,7 +256,6 @@ int main(int argc, char **argv) {
 
     m_index = 0;
 
-    // get the input txt file and create the linked list of vectors
     head_vec = getinput(&num_vectors);
     if (head_vec == NULL) {
         return 1;
@@ -266,7 +266,6 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    // initilize the vectors linked list as an array to easily get the values according to index
     vector_array = malloc(num_vectors * sizeof(struct vector *));
     current = head_vec;
 
@@ -279,7 +278,6 @@ int main(int argc, char **argv) {
         current = current->next;
     }
 
-    // initilize array of K first vectors as m_array
     m_array = malloc(K * sizeof(struct vector *));
     
     for (i = 0; i < K; i++) {
@@ -294,23 +292,19 @@ int main(int argc, char **argv) {
     closest_indices = malloc(num_vectors * sizeof(int));
     counters_array = malloc(K * sizeof(int));
 
-    struct vector **sums_array = malloc(K * sizeof(struct vector *));
+    sums_array = malloc(K * sizeof(struct vector *));
     i = 0;
 
     while((i < iter) && (!converged)){
-        // Find the closest vectors and store their indices
         find_closest_vectors(vector_array, num_vectors, m_array, K, closest_indices);
-
-        // Initialize counters array to zeros
         for (j = 0; j < K; j++){
             counters_array[j] = 0;
         }
 
-        // Initialize each pointer to NULL
         for (j = 0; j < K; j++) {
             sums_array[j] = NULL;
         }
-        // Calculate the new means
+
         for(h = 0; h < num_vectors; h++){
             m_index = closest_indices[h];
             if (sums_array[m_index] == NULL){
@@ -328,10 +322,8 @@ int main(int argc, char **argv) {
             new_m_array[h] = devide_sum(sums_array[h], counters_array[h]);
         }
 
-        // Check convergence
         converged = check_convergence(K ,new_m_array, m_array);
         
-        // Update m_array and free redundant memory
         for(j = 0; j < K; j++){
             free_vector_mem(m_array[j]);
             m_array[j] = new_m_array[j];
@@ -343,7 +335,6 @@ int main(int argc, char **argv) {
 
     print_m_array(m_array, K);
 
-    // Free memory
     free_vector_mem(head_vec);
 
     for (i = 0; i < K; i++) {
