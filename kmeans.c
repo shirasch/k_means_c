@@ -57,9 +57,10 @@ struct vector* duplicate_vector(struct vector *original) {
 
 void print_vectors(struct vector *head_vec) {
     struct vector *current_vector = head_vec;
+    struct cord *current_cord;
 
     while (current_vector != NULL) {
-        struct cord *current_cord = current_vector->cords;
+        current_cord = current_vector->cords;
 
         while (current_cord->next != NULL) {
             printf("%.4f,", current_cord->value);
@@ -126,16 +127,17 @@ double calculate_distance(struct vector *vec1, struct vector *vec2) {
     struct cord *cord1 = vec1->cords;
     struct cord *cord2 = vec2->cords;
     double sum = 0.0;
+    double diff;
 
     while (cord1 != NULL && cord2 != NULL) {
-        double diff = cord1->value - cord2->value;
+        diff = cord1->value - cord2->value;
         sum += diff * diff;
         cord1 = cord1->next;
         cord2 = cord2->next;
     }
 
     if (cord1 != NULL || cord2 != NULL) {
-        fprintf(stderr, "Error: Vectors have different lengths.\n");
+        printf("Error: Vectors have different lengths.\n");
         exit(1);
     }
 
@@ -145,14 +147,19 @@ double calculate_distance(struct vector *vec1, struct vector *vec2) {
 void find_closest_vectors(struct vector **vector_array, int num_vectors, struct vector **m_array, int K, int *closest_indices) {
     int i;
     int j;
+    int closest_index;
+    struct vector *current_vec;
+    double min_distance;
+    struct vector *m_vec;
+    double distance;
     for (i = 0; i < num_vectors; i++) {
-        struct vector *current_vec = vector_array[i];
-        int closest_index = -1;
-        double min_distance = INFINITY;
+        current_vec = vector_array[i];
+        closest_index = -1;
+        min_distance = 1.7976931348623157e+308;
 
         for (j = 0; j < K; j++) {
-            struct vector *m_vec = m_array[j];
-            double distance = calculate_distance(current_vec, m_vec);
+            m_vec = m_array[j];
+            distance = calculate_distance(current_vec, m_vec);
             if (distance < min_distance) {
                 min_distance = distance;
                 closest_index = j;
@@ -163,9 +170,6 @@ void find_closest_vectors(struct vector **vector_array, int num_vectors, struct 
 }
 
 void sum_vectors(struct vector *vec1, struct vector *vec2) {
-    struct cord *head_result_cord = NULL;
-    struct cord *curr_result_cord = NULL;
-
     struct cord *cord1 = vec1->cords;
     struct cord *cord2 = vec2->cords;
 
@@ -180,11 +184,12 @@ struct vector* devide_sum(struct vector *sum_vector, int divisor) {
     struct vector *result = malloc(sizeof(struct vector));
     struct cord *head_result_cord = NULL;
     struct cord *curr_result_cord = NULL;
+    struct cord *new_cord;
 
     struct cord *cord = sum_vector->cords;
 
     while (cord != NULL) {
-        struct cord *new_cord = malloc(sizeof(struct cord));
+        new_cord = malloc(sizeof(struct cord));
         new_cord->value = cord->value / (double) divisor;  // Ensure division is floating-point
         new_cord->next = NULL;
 
@@ -209,22 +214,23 @@ int check_convergence(int n, struct vector **new_means, struct vector **old_mean
     double e = 0.001;
     double total_movement = 0.0;
     int i;
+    int result;
 
     for (i = 0; i < n; i++) {
         total_movement += calculate_distance(new_means[i], old_means[i]);
         
     }
-    int result = total_movement<e ? 1 : 0;
+    result = total_movement<e ? 1 : 0;
 
     return result;
 }
 
 void free_vector_mem(struct vector *vec){
     struct vector *temp_vec;
+    struct cord *temp_cord;
     while (vec != NULL) {
         temp_vec = vec;
         vec = vec->next;
-        struct cord *temp_cord;
         while (temp_vec->cords != NULL) {
             temp_cord = temp_vec->cords;
             temp_vec->cords = temp_vec->cords->next;
@@ -282,11 +288,16 @@ int main(int argc, char **argv) {
     struct vector **new_m_array;
 
     if (argc < 2) {
-        printf("An Error Has Occurred\n");
-        return 1;
+        //fprintf("An Error Has Occurred\n");
+        //return 1;
     }
-    
-    K = atoi(argv[1]);
+    //K = atoi(argv[1]);
+
+    m_index = 0;
+    K = 3;
+    iter = 100;
+    char input_file[12] = "input_1.txt";
+
     
     if (argc == 3){
         iter = atoi(argv[2]);
