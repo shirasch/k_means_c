@@ -15,8 +15,21 @@ struct vector {
 void print_vectors(struct vector *head_vec);
 void print_m_array(struct vector **m_array, int K);
 
+int is_integer(const char *str) {
+    char *endptr;
+    long val = strtol(str, &endptr, 10); 
+    if (endptr == str || *endptr != '\0') {
+        return 0;
+    }
+    if (val < INT_MIN || val > INT_MAX) {
+        return 0;
+    }
+    return 1;
+}
+
 void print_m_array(struct vector **m_array, int K) {
-    for (int i = 0; i < K; i++) {
+    int i;
+    for (i = 0; i < K; i++) {
         print_vectors(m_array[i]);
     }
 }
@@ -51,24 +64,24 @@ void print_vectors(struct vector *head_vec) {
         struct cord *current_cord = current_vector->cords;
 
         while (current_cord->next != NULL) {
-            printf("%.4lf,", current_cord->value);
+            printf("%.4f,", current_cord->value);
             current_cord = current_cord->next;
         }
-        printf("%.4lf", current_cord->value);
+        printf("%.4f", current_cord->value);
         printf("\n");
 
         current_vector = current_vector->next;
     }
 }
 
-struct vector* getinput(char *input_file, int *num_vectors) {
+struct vector* getinput(int *num_vectors) {
     struct vector *head_vec = NULL, *curr_vec = NULL;
     struct cord *head_cord = NULL, *curr_cord = NULL;
     double n;
     char c;
     *num_vectors = 0;
 
-    while (scanf("%lf%c", &n, &c) == 2) {
+    while (scanf("%f%c", &n, &c) == 2) {
         struct cord *new_cord = malloc(sizeof(struct cord));
         new_cord->value = n;
         new_cord->next = NULL;
@@ -102,7 +115,6 @@ struct vector* getinput(char *input_file, int *num_vectors) {
     return head_vec;
 }
 
-// calculate the distance between 2 vectors
 double calculate_distance(struct vector *vec1, struct vector *vec2) {
     struct cord *cord1 = vec1->cords;
     struct cord *cord2 = vec2->cords;
@@ -116,7 +128,7 @@ double calculate_distance(struct vector *vec1, struct vector *vec2) {
     }
 
     if (cord1 != NULL || cord2 != NULL) {
-        fprintf(stderr, "Error: Vectors have different lengths.\n");
+        printf("Error: Vectors have different lengths.\n");
         exit(1);
     }
 
@@ -124,12 +136,14 @@ double calculate_distance(struct vector *vec1, struct vector *vec2) {
 }
 
 void find_closest_vectors(struct vector **vector_array, int num_vectors, struct vector **m_array, int K, int *closest_indices) {
-    for (int i = 0; i < num_vectors; i++) {
+    int i;
+    int j;
+    for (i = 0; i < num_vectors; i++) {
         struct vector *current_vec = vector_array[i];
         int closest_index = -1;
         double min_distance = INFINITY;
 
-        for (int j = 0; j < K; j++) {
+        for (j = 0; j < K; j++) {
             struct vector *m_vec = m_array[j];
             double distance = calculate_distance(current_vec, m_vec);
             if (distance < min_distance) {
@@ -187,8 +201,9 @@ struct vector* devide_sum(struct vector *sum_vector, int divisor) {
 int check_convergence(int n, struct vector **new_means, struct vector **old_means) {
     double e = 0.001;
     double total_movement = 0.0;
+    int i;
 
-    for (int i = 0; i < n; i++) {
+    for (i = 0; i < n; i++) {
         total_movement += calculate_distance(new_means[i], old_means[i]);
         
     }
@@ -218,49 +233,61 @@ void free_vector_mem(struct vector *vec){
 int main(int argc, char **argv) {
     int K;
     int iter;
-    //char *input_file;
     int num_vectors;
     int i;
     int converged = 0;
     int h;
     int m_index;
 
-   // if (argc < 3) {
-     //   fprintf(stderr, "An Error Has Occurred", argv[0]);
-       // return 1;
-  //  }
+    if (argc < 3) {
+        printf("An Error Has Occurred\n");
+        return 1;
+    }
 
-    
-    K = atoi(argv[1]);
-
-    m_index = 0;
-    K = 3;
-    iter = 100;
-    char input_file[12] = "input_1.txt";
-
-    
-    if (argc == 4){
-        iter = atoi(argv[2]);
-        char *input_file = argv[3];
+    if (argc == 3) {
+        if (!is_integer(argv[1])) {
+            printf("Invalid number of clusters!\n");
+            return 1;
+        } 
+        K = atoi(argv[1]);
+        iter = 200;
     }
     else{
-        iter = 200;
-        char *input_file = argv[2];
+        if (!is_integer(argv[2])) {
+            printf("Invalid maximum iteration!\n");
+            return 1;
+        }
+        K = atoi(argv[1]);
+        iter =  atoi(argv[2]);
+        if(iter<2 || iter>999){
+            printf("Invalid maximum iteration!\n");
+            return 1;
+        }
     }
 
+    m_index = 0;
 
     // get the input txt file and create the linked list of vectors
-    struct vector *head_vec = getinput(input_file, &num_vectors);
+    struct vector *head_vec = getinput(&num_vectors);
     if (head_vec == NULL) {
+        return 1;
+    }
+
+    if(K>num_vectors-1 || K<2){
+        printf("Invalid number of clusters!\n");
         return 1;
     }
 
     // initilize the vectors linked list as an array to easily get the values according to index
     struct vector **vector_array = malloc(num_vectors * sizeof(struct vector *));
     struct vector *current = head_vec;
-    for (int i = 0; i < num_vectors; i++) {
+    int i;
+    int j;
+    int h;
+
+    for (i = 0; i < num_vectors; i++) {
         if (current == NULL) {
-            fprintf(stderr, "Error: Insufficient vectors in input file.\n");
+            printf("Error: Insufficient vectors in input file.\n");
             return 1;
         }
         vector_array[i] = current;
@@ -270,9 +297,9 @@ int main(int argc, char **argv) {
     // initilize array of K first vectors as m_array
     struct vector **m_array = malloc(K * sizeof(struct vector *));
     
-    for (int i = 0; i < K; i++) {
+    for (i = 0; i < K; i++) {
         if (i >= num_vectors) {
-            fprintf(stderr, "Error: K is greater than the number of vectors.\n");
+            printf("Error: K is greater than the number of vectors.\n");
             return 1;
         }
         m_array[i] = duplicate_vector(vector_array[i]);
@@ -290,12 +317,12 @@ int main(int argc, char **argv) {
         find_closest_vectors(vector_array, num_vectors, m_array, K, closest_indices);
 
         // Initialize counters array to zeros
-        for (int j = 0; j < K; j++){
+        for (j = 0; j < K; j++){
             counters_array[j] = 0;
         }
 
         // Initialize each pointer to NULL
-        for (int j = 0; j < K; j++) {
+        for (j = 0; j < K; j++) {
             sums_array[j] = NULL;
         }
         // Calculate the new means
@@ -316,11 +343,9 @@ int main(int argc, char **argv) {
             new_m_array[h] = devide_sum(sums_array[h], counters_array[h]);
         }
 
-
         // Check convergence
         converged = check_convergence(K ,new_m_array, m_array);
         
-
         // Update m_array and free redundant memory
         for(int j = 0; j < K; j++){
             free_vector_mem(m_array[j]);
@@ -336,7 +361,7 @@ int main(int argc, char **argv) {
     // Free memory
     free_vector_mem(head_vec);
 
-    for (int i = 0; i < K; i++) {
+    for (i = 0; i < K; i++) {
         free_vector_mem(m_array[i]);
     }
     free(m_array);
