@@ -217,7 +217,6 @@ void free_vector_mem(struct vector *vec){
         }
         free(temp_vec);
     }
-
 }
 
 
@@ -281,6 +280,7 @@ int main(int argc, char **argv) {
         current = current->next;
     }
 
+    free_vector_mem(head_vec);
     m_array = malloc(K * sizeof(struct vector *));
     
     for (i = 0; i < K; i++) {
@@ -338,7 +338,6 @@ int main(int argc, char **argv) {
 
     print_m_array(m_array, K);
 
-    free_vector_mem(head_vec);
 
     for (i = 0; i < K; i++) {
         free_vector_mem(m_array[i]);
@@ -346,7 +345,8 @@ int main(int argc, char **argv) {
     free(m_array);
     free(closest_indices);
     free(counters_array);
-    free(vector_array);
+    for(i=0; i<num_vectors; i++){
+        free_vector_mem(vector_array[i]);
 
     return 0;
 }
