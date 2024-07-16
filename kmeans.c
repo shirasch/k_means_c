@@ -73,7 +73,7 @@ void print_vectors(struct vector *head_vec) {
     }
 }
 
-struct vector* getinput(char *input_file, int *num_vectors) {
+struct vector* getinput(int *num_vectors) {
     struct vector *head_vec = NULL, *curr_vec = NULL;
     struct cord *head_cord = NULL, *curr_cord = NULL;
     double n;
@@ -110,10 +110,11 @@ struct vector* getinput(char *input_file, int *num_vectors) {
             }
         }
     }
+
     return head_vec;
 }
 
-// calculate the distance between 2 vectors
+
 double calculate_distance(struct vector *vec1, struct vector *vec2) {
     struct cord *cord1 = vec1->cords;
     struct cord *cord2 = vec2->cords;
@@ -181,7 +182,7 @@ struct vector* devide_sum(struct vector *sum_vector, int divisor) {
 
     while (cord != NULL) {
         new_cord = malloc(sizeof(struct cord));
-        new_cord->value = cord->value / (double) divisor;  // Ensure division is floating-point
+        new_cord->value = cord->value / (double) divisor;
         new_cord->next = NULL;
 
         if (head_result_cord == NULL) {
@@ -277,9 +278,10 @@ int main(int argc, char **argv) {
     struct vector **m_array;
     struct vector **sums_array;
     struct vector **new_m_array;
+    struct vector *head_vec;
 
     if (argc < 2) {
-        fprintf("An Error Has Occurred\n");
+        printf("An Error Has Occurred\n");
         return 1;
     }
     K = atoi(argv[1]);
@@ -292,8 +294,12 @@ int main(int argc, char **argv) {
         iter = 200;
     }
 
-    struct vector *head_vec = getinput(input_file, &num_vectors);
+    K = atoi(argv[1]);
+    iter = atoi(argv[2]);
+
+    head_vec = getinput(&num_vectors);
     if (head_vec == NULL) {
+        fprintf(stderr, "Failed to load input data.\n");
         return 1;
     }
 
@@ -354,7 +360,7 @@ int main(int argc, char **argv) {
 
         converged = check_convergence(K ,new_m_array, m_array);
         
-        for(int j = 0; j < K; j++){
+        for(j = 0; j < K; j++){
             free_vector_mem(m_array[j]);
             m_array[j] = new_m_array[j];
         }
