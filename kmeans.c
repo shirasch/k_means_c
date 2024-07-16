@@ -127,7 +127,7 @@ double calculate_distance(struct vector *vec1, struct vector *vec2) {
 void find_closest_vectors(struct vector **vector_array, int num_vectors, struct vector **m_array, int K, int *closest_indices) {
     int i;
     int j;
-    double min_distance = (double)((2 - (1.0 / (1ULL << 52))) * (1ULL << 1023)); 
+    double min_distance = 1.7976931348623157e+308; 
     int closest_index;
     struct vector *m_vec;
     struct vector *current_vec;
