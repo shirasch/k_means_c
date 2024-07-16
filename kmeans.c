@@ -230,14 +230,13 @@ void free_vector_mem(struct vector *vec){
 
 void free_array_memory(struct vector **array){
     int i;
-    for (i = 0; i < array[i] != NULL; i++){
+    for (i = 0; (array[i] != NULL) ; i++){
         free_vector_mem(array[i]);
     }
     free(array);
 }
 
 void cleanup(void) {
-    int i;
     if (vector_array) {
         free_array_memory(vector_array);
     }
