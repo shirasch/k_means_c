@@ -128,13 +128,17 @@ void find_closest_vectors(struct vector **vector_array, int num_vectors, struct 
     int i;
     int j;
     double min_distance = INFINITY;
+    int closest_index;
+    struct vector *m_vec;
+    struct vector *current_vec;
+    double distance;
     for (i = 0; i < num_vectors; i++) {
-        struct vector *current_vec = vector_array[i];
-        int closest_index = -1;
+        current_vec = vector_array[i];
+        closest_index = -1;
 
         for (j = 0; j < K; j++) {
-            struct vector *m_vec = m_array[j];
-            double distance = calculate_distance(current_vec, m_vec);
+            m_vec = m_array[j];
+            distance = calculate_distance(current_vec, m_vec);
             if (distance < min_distance) {
                 min_distance = distance;
                 closest_index = j;
