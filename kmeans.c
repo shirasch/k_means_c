@@ -12,6 +12,15 @@ struct vector {
     struct cord *cords;
 };
 
+struct vector **vector_array = NULL;
+struct vector **m_array = NULL;
+int *closest_indices = NULL;
+int *counters_array = NULL;
+struct vector **sums_array = NULL;
+struct vector *head_vec = NULL;
+void free_vector_mem(struct vector *vec);
+void cleanup(void);
+
 void print_vectors(struct vector *head_vec);
 void print_m_array(struct vector **m_array, int K);
 
@@ -219,6 +228,36 @@ void free_vector_mem(struct vector *vec){
     }
 }
 
+void free_array_memory(struct vector **array){
+    int i;
+    for (i = 0; i < array[i] != NULL; i++){
+        free_vector_mem(array[i]);
+    }
+    free(array);
+}
+
+void cleanup(void) {
+    int i;
+    if (vector_array) {
+        free_array_memory(vector_array);
+    }
+    if (m_array) {
+        free_array_memory(m_array);
+    }
+    if (closest_indices) {
+        free(closest_indices);
+    }
+    if (counters_array) {
+        free(counters_array);
+    }
+    if (sums_array) {
+        free_array_memory(sums_array);
+    }
+    if (head_vec) {
+        free_vector(head_vec);
+    }
+}
+
 
 int main(int argc, char **argv) {
     int K;
@@ -239,6 +278,7 @@ int main(int argc, char **argv) {
     struct vector **sums_array;
 
     if (argc < 3) {
+        cleanup();
         printf("An Error Has Occurred\n");
         return 1;
     }
@@ -252,6 +292,7 @@ int main(int argc, char **argv) {
         iter =  atoi(argv[2]);
         if(iter<2 || iter>999){
             printf("Invalid maximum iteration!\n");
+            cleanup();
             return 1;
         }
     }
@@ -260,11 +301,13 @@ int main(int argc, char **argv) {
 
     head_vec = getinput(&num_vectors);
     if (head_vec == NULL) {
+        cleanup();
         return 1;
     }
 
     if(K>num_vectors-1 || K<2){
         printf("Invalid number of clusters!\n");
+        cleanup();
         return 1;
     }
 
@@ -273,7 +316,8 @@ int main(int argc, char **argv) {
 
     for (i = 0; i < num_vectors; i++) {
         if (current == NULL) {
-            printf("Error: Insufficient vectors in input file.\n");
+            printf("An Error Has Occurred\n");
+            cleanup();
             return 1;
         }
         vector_array[i] = current;
@@ -285,7 +329,8 @@ int main(int argc, char **argv) {
     
     for (i = 0; i < K; i++) {
         if (i >= num_vectors) {
-            printf("Error: K is greater than the number of vectors.\n");
+            printf("An Error Has Occurred\n");
+            cleanup();
             return 1;
         }
         m_array[i] = duplicate_vector(vector_array[i]);
@@ -294,7 +339,6 @@ int main(int argc, char **argv) {
 
     closest_indices = malloc(num_vectors * sizeof(int));
     counters_array = malloc(K * sizeof(int));
-
     sums_array = malloc(K * sizeof(struct vector *));
     i = 0;
 
@@ -336,17 +380,6 @@ int main(int argc, char **argv) {
         i++;
     }
 
-    print_m_array(m_array, K);
-
-
-    for (i = 0; i < K; i++) {
-        free_vector_mem(m_array[i]);
-    }
-    free(m_array);
-    free(closest_indices);
-    free(counters_array);
-    for(i=0; i<num_vectors; i++){
-        free_vector_mem(vector_array[i]);
-
+    cleanup();
     return 0;
 }
