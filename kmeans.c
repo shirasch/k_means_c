@@ -254,7 +254,7 @@ void cleanup(void) {
         free_array_memory(sums_array);
     }
     if (head_vec) {
-        free_vector(head_vec);
+        free_vector_mem(head_vec);
     }
 }
 
