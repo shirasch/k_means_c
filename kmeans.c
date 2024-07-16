@@ -312,6 +312,7 @@ int main(int argc, char **argv) {
 
     vector_array = malloc(num_vectors * sizeof(struct vector *));
     current = head_vec;
+    print_m_array(vector_array, num_vectors);
 
     for (i = 0; i < num_vectors; i++) {
         if (current == NULL) {
@@ -378,6 +379,7 @@ int main(int argc, char **argv) {
 
         i++;
     }
+    print_m_array(m_array, K);
 
     cleanup();
     return 0;
