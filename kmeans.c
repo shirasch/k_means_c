@@ -236,8 +236,11 @@ int main(int argc, char **argv) {
     int num_vectors;
     int i;
     int converged = 0;
-    int h;
     int m_index;
+    struct vector **vector_array;
+    struct vector *current;
+    int j;
+    int h;
 
     if (argc < 3) {
         printf("An Error Has Occurred\n");
@@ -279,11 +282,8 @@ int main(int argc, char **argv) {
     }
 
     // initilize the vectors linked list as an array to easily get the values according to index
-    struct vector **vector_array = malloc(num_vectors * sizeof(struct vector *));
-    struct vector *current = head_vec;
-    int i;
-    int j;
-    int h;
+    vector_array = malloc(num_vectors * sizeof(struct vector *));
+    current = head_vec;
 
     for (i = 0; i < num_vectors; i++) {
         if (current == NULL) {
