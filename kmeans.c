@@ -1,6 +1,6 @@
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 struct cord {
     double value;
@@ -127,11 +127,10 @@ double calculate_distance(struct vector *vec1, struct vector *vec2) {
 void find_closest_vectors(struct vector **vector_array, int num_vectors, struct vector **m_array, int K, int *closest_indices) {
     int i;
     int j;
-    double min_distance;
+    double min_distance = INFINITY;
     for (i = 0; i < num_vectors; i++) {
         struct vector *current_vec = vector_array[i];
         int closest_index = -1;
-        min_distance = INFINITY;
 
         for (j = 0; j < K; j++) {
             struct vector *m_vec = m_array[j];
