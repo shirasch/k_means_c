@@ -68,14 +68,7 @@ struct vector* getinput(char *input_file, int *num_vectors) {
     char c;
     *num_vectors = 0;
 
-    FILE *fp = fopen(input_file, "r");
-
-    if (fp == NULL) {
-        perror("Error opening file");
-        return NULL;
-    }
-
-    while (fscanf(fp, "%lf%c", &n, &c) == 2) {
+    while (scanf("%lf%c", &n, &c) == 2) {
         struct cord *new_cord = malloc(sizeof(struct cord));
         new_cord->value = n;
         new_cord->next = NULL;
@@ -106,7 +99,6 @@ struct vector* getinput(char *input_file, int *num_vectors) {
         }
     }
 
-    fclose(fp);
     return head_vec;
 }
 
@@ -228,17 +220,17 @@ int main(int argc, char **argv) {
     int iter;
     //char *input_file;
     int num_vectors;
-    double e;
     int i;
     int converged = 0;
-    e = 0.001;
     int h;
     int m_index;
 
-    if (argc < 3) {
-        fprintf(stderr, "An Error Has Occurred", argv[0]);
-        return 1;
-    }
+   // if (argc < 3) {
+     //   fprintf(stderr, "An Error Has Occurred", argv[0]);
+       // return 1;
+  //  }
+
+    
     K = atoi(argv[1]);
 
     m_index = 0;
