@@ -320,8 +320,8 @@ int main(int argc, char **argv)
     int h;
     int j;
     int m_index;
-    int *closest_indices;
-    int *counters_array;
+    /*int *closest_indices;*/
+    /*int *counters_array;*/
     struct vector **new_m_array; /*new centroids array*/
     struct vector *current;
 
@@ -363,7 +363,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    printf("size of vector %ld, vector pointer %ld\n",sizeof(struct vector),sizeof(struct vector*));
+    /*printf("size of vector %ld, vector pointer %ld\n",sizeof(struct vector),sizeof(struct vector*));*/
 
     if (K > num_vectors - 1 || K < 2)
     {
