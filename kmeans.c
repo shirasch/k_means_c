@@ -173,13 +173,14 @@ void find_closest_vectors(struct vector **vector_array, int num_vectors, struct 
     {
         current_vec = vector_array[i];
         closest_index = -1;
-        min_distance = 1.7976931348623157e+308;
+        min_distance = -1.0;
 
         for (j = 0; j < K; j++)
         {
             m_vec = m_array[j];
             distance = calculate_distance(current_vec, m_vec);
-            if (distance < min_distance)
+	    
+            if (distance < min_distance || min_distance < 0)
             {
                 min_distance = distance;
                 closest_index = j;
@@ -320,16 +321,8 @@ int main(int argc, char **argv)
     int h;
     int j;
     int m_index;
-    /*int *closest_indices;*/
-    /*int *counters_array;*/
     struct vector **new_m_array; /*new centroids array*/
     struct vector *current;
-
-    /*struct vector **vector_array;
-    struct vector **m_array; 
-    struct vector **sums_array;
-
-    struct vector *head_vec;*/
 
     if (argc < 3)
     {
@@ -363,7 +356,6 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    /*printf("size of vector %ld, vector pointer %ld\n",sizeof(struct vector),sizeof(struct vector*));*/
 
     if (K > num_vectors - 1 || K < 2)
     {
