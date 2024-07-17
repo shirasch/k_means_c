@@ -280,26 +280,37 @@ int main(int argc, char **argv) {
     struct vector **new_m_array;
     struct vector *head_vec;
 
-    if (argc < 2) {
+    if (argc < 3) {
         printf("An Error Has Occurred\n");
         return 1;
     }
     K = atoi(argv[1]);
 
     
-    if (argc == 3){
+    if (argc == 2){
         iter = atoi(argv[2]);
-    }
-    else{
         iter = 200;
     }
-
-    K = atoi(argv[1]);
-    iter = atoi(argv[2]);
+    else{
+        K = atoi(argv[1]);
+        iter =  atoi(argv[2]);
+        if(iter<2 || iter>999){
+            printf("Invalid maximum iteration!\n");
+            cleanup();
+            return 1;
+        }
+    }
 
     head_vec = getinput(&num_vectors);
     if (head_vec == NULL) {
         fprintf(stderr, "Failed to load input data.\n");
+        cleanup();
+        return 1;
+    }
+
+    if(K>num_vectors-1 || K<2){
+        printf("Invalid number of clusters!\n");
+        cleanup();
         return 1;
     }
 
