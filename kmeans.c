@@ -169,7 +169,7 @@ double calculate_distance(struct vector *vec1, struct vector *vec2)
 
     if (cord1 != NULL || cord2 != NULL)
     {
-        printf("Error: Vectors have different lengths.\n");
+        printf("An Error Has Occurred\n");
         exit(1);
     }
 
