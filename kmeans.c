@@ -41,7 +41,6 @@ struct vector *duplicate_vector(struct vector *original)
     struct cord *orig_cord = original->cords;
     struct cord *dup_cord_head = NULL, *dup_cord_curr = NULL;
     struct cord *new_cord;
-
     while (orig_cord != NULL)
     {
         new_cord = malloc(sizeof(struct cord));
@@ -134,6 +133,23 @@ struct vector *getinput(int *num_vectors)
     }
 
     return head_vec;
+}
+
+int is_int(const char *str) {
+    double k;
+    char *endptr;
+
+    if (*str == '\0' || *str == '-') {
+        return 0;
+    }
+
+    k = strtod(str, &endptr);
+
+    if (*endptr == '\0' && k == floor(k)) {
+        return 1;
+    }
+
+    return 0;
 }
 
 double calculate_distance(struct vector *vec1, struct vector *vec2)
@@ -324,26 +340,38 @@ int main(int argc, char **argv)
     struct vector **new_m_array; /*new centroids array*/
     struct vector *current;
 
-    if (argc < 3)
+    if (argc < 2)
     {
         printf("An Error Has Occurred\n");
+        return 1;
+    }
+
+    if (argc > 3)
+    {
+        printf("An Error Has Occurred\n");
+        return 1;
+    }
+
+    if (!is_int(argv[1])){
+        printf("Invalid number of clusters!\n");
         return 1;
     }
     K = atoi(argv[1]);
 
     if (argc == 2)
     {
-        iter = atoi(argv[2]);
         iter = 200;
     }
     else
     {
-        K = atoi(argv[1]);
+        if(!is_int(argv[2])){
+            printf("Invalid maximum iteration!\n");
+            return 1;
+        }
         iter = atoi(argv[2]);
         if (iter < 2 || iter > 999)
         {
             printf("Invalid maximum iteration!\n");
-            cleanup(0);
             return 1;
         }
     }
@@ -351,7 +379,7 @@ int main(int argc, char **argv)
     head_vec = getinput(&num_vectors);
     if (head_vec == NULL)
     {
-        fprintf(stderr, "Failed to load input data.\n");
+        printf("An Error Has Occurred\n");
         cleanup(0);
         return 1;
     }
@@ -365,6 +393,12 @@ int main(int argc, char **argv)
     }
 
     vector_array = malloc(num_vectors * sizeof(struct vector *));
+    if (vector_array == NULL) {
+        printf("An Error Has Occurred\n");
+        cleanup(K);
+        return 1;
+    }
+
     current = head_vec;
     for (i = 0; i < num_vectors; i++)
     {
@@ -373,23 +407,49 @@ int main(int argc, char **argv)
     }
 
     m_array = malloc(K * sizeof(struct vector *));
+    if (m_array == NULL) {
+        printf("An Error Has Occurred\n");
+        cleanup(K);
+        return 1;
+    }
 
     for (i = 0; i < K; i++)
     {
         if (i >= num_vectors)
         {
-            printf("Error: K is greater than the number of vectors.\n");
+            printf("An Error Has Occurred\n");
             return 1;
         }
         m_array[i] = duplicate_vector(vector_array[i]);
     }
 
     closest_indices = malloc(num_vectors * sizeof(int));
+    if (closest_indices == NULL) {
+        printf("An Error Has Occurred\n");
+        cleanup(K);
+        return 1;
+    }
     counters_array = malloc(K * sizeof(int));
+    if (counters_array == NULL) {
+        printf("An Error Has Occurred\n");
+        cleanup(K);
+        return 1;
+    }
 
     sums_array = malloc(K * sizeof(struct vector *));
+    if (sums_array == NULL) {
+        printf("An Error Has Occurred\n");
+        cleanup(K);
+        return 1;
+    }
     i = 0;
+
     new_m_array = malloc(K * sizeof(struct vector *));
+    if (new_m_array == NULL) {
+        printf("An Error Has Occurred\n");
+        cleanup(K);
+        return 1;
+    }
 
     while ((i < iter) && (!converged))
     {
